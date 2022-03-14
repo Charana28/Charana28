@@ -1,0 +1,584 @@
+
+Team Members:
+Sri Charana Kolanu-16325908(skh5r@umsystem.edu)
+Laxmi Divya Vemuganti-16325910(lv6d6@umssystem.edu)
+
+
+
+Q1)Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+This exercise relates to the College data set, which can be found in
+the file College.csv on the book website. It contains a number of
+variables for 777 different universities and colleges in the US. The
+variables are
+• Private : Public/private indicator
+• Apps : Number of applications received
+• Accept : Number of applicants accepted
+• Enroll : Number of new students enrolled
+• Top10perc : New students from top 10 % of high school class
+• Top25perc : New students from top 25 % of high school class
+• F.Undergrad : Number of full-time undergraduates
+• P.Undergrad : Number of part-time undergraduates
+• Outstate : Out-of-state tuition
+• Room.Board : Room and board costs
+• Books : Estimated book costs
+• Personal : Estimated personal spending
+• PhD : Percent of faculty with Ph.D.’s
+• Terminal : Percent of faculty with terminal degree
+• S.F.Ratio : Student/faculty ratio
+• perc.alumni : Percent of alumni who donate
+• Expend : Instructional expenditure per student
+• Grad.Rate : Graduation rate
+Before reading the data into R, it can be viewed in Excel or a text
+editor.
+(a) Use the read.csv() function to read the data into R. Call the
+loaded data college. Make sure that you have the directory set
+to the correct location for the data.
+
+```{r}
+college=read.csv("https://www.statlearning.com/s/College.csv")
+```
+(b) Look at the data using the View() function. You should notice
+that the first column is just the name of each university. We don’t
+really want R to treat this as data. However, it may be handy to
+have these names for later. Try the following commands:
+rownames (college) <- college[, 1]
+View (college)
+```{r}
+rownames(college)=college[,1]
+View(college)
+```
+You should see that there is now a row.names column with the
+name of each university recorded. This means that R has given
+each row a name corresponding to the appropriate university. R
+will not try to perform calculations on the row names. However,
+we still need to eliminate the first column in the data where the
+names are stored. Try
+college = college[, -1]
+View (college)
+```{r}
+college=college[,-1]
+View(college)
+```
+Now you should see that the first data column is Private. Note
+that another column labeled row.names now appears before the
+Private column. However, this is not a data column but rather
+the name that R is giving to each row.
+(c) i. Use the summary() function to produce a numerical summary
+of the variables in the data set.
+```{r}
+summary(college)
+```
+ii. Use the pairs() function to produce a scatterplot matrix of
+the first ten columns or variables of the data. Recall that
+you can reference the first ten columns of a matrix A using
+A[,1:10].
+```{r}
+pairs(college[, 1:10])
+```
+Use the plot() function to produce side-by-side boxplots of
+Outstate versus Private.
+```{r}
+plot(college$Private, college$Outstate, xlab = "Private", ylab = "Out-of-state tuition (dollars)")
+```
+iv. Create a new qualitative variable, called Elite, by binning
+the Top10perc variable. We are going to divide universities
+into two groups based on whether or not the proportion
+of students coming from the top 10 % of their high school
+classes exceeds 50 %.
+```{r}
+Elite=rep ("No", nrow (college))
+Elite[college$Top10perc > 50]="Yes"
+Elite=as.factor(Elite)
+college=data.frame(college,Elite)
+```
+Use the summary() function to see how many elite universities there are. Now use the plot() function to produce
+side-by-side boxplots of Outstate versus Elite.
+```{r}
+summary(college$Elite)
+```
+v. Use the hist() function to produce some histograms with
+differing numbers of bins for a few of the quantitative variables. You may find the command par(mfrow = c(2, 2))
+useful: it will divide the print window into four regions so
+that four plots can be made simultaneously. Modifying the
+arguments to this function will divide the screen in other
+ways.
+```{r}
+par(mfrow = c(2, 2))
+hist(college$Apps, xlab = "Number of applicants", main = "Histogram for all colleges")
+hist(college$Apps[college$Private == "Yes"], xlab = "Number of applicants", main = "Histogram for private schools")
+hist(college$Apps[college$Private == "No"], xlab = "Number of applicants", main = "Histogram for public schools")
+hist(college$Apps[college$Elite == "Yes"], xlab = "Number of applicants", main = "Histogram for elite schools")
+```
+vi. Continue exploring the data, and provide a brief summary
+of what you discover.
+University which consists of most of top ten percent of students
+```{r}
+row.names(college)[which.max(college$Top10perc)]  
+```
+University with lowest acceptance rate
+```{r}
+acceptance_rate=college$Accept/college$Apps
+row.names(college)[which.min(acceptance_rate)]
+```
+Plotting graph between Gradyation rate and Out-of-state tuition
+```{r}
+plot(college$Outstate, college$Grad.Rate)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+hist(college$perc.alumni, xlab = "Percent of alumni who donate", main = "Histogram for all colleges")
+hist(college$perc.alumni[college$Private == "Yes"], xlab = "Percent of alumni who donate", main = "Histogram for private schools")
+hist(college$perc.alumni[college$Private == "No"], xlab = "Percent of alumni who donate", main = "Histogram for public schools")
+hist(college$perc.alumni[college$Elite == "Yes"], xlab = "Percent of alumni who donate", main = "Histogram for elite schools")
+```
+The above histogram shows private and elite shows higher percent of donation for the alumni. Below scatter plots shows the factors related to the graduation rate.
+```{r}
+par(mfrow = c(2, 2))
+plot(college$PhD, college$Grad.Rate, xlab = "Number of faculty with PhDs", ylab = "Graduation Rate")
+plot(college$Terminal, college$Grad.Rate, xlab = "Number of faculty with terminal degrees", ylab = "Graduation Rate")
+plot(college$S.F.Ratio, college$Grad.Rate, xlab = "Student-faculty ratio", ylab = "Graduation Rate")
+plot(college$Expend, college$Grad.Rate, xlab = "Instructional expenditure per student (dollars)", ylab = "Graduation Rate")
+```
+
+Q2)This exercise involves the Auto data set studied in the lab. Make sure that the missing values have been removed from the data.
+```{r}
+Auto=read.csv("https://www.statlearning.com/s/Auto.csv", header = TRUE, na.strings = "?")
+Auto=na.omit(Auto)
+dim(Auto)
+```
+(a) Which of the predictors are quantitative, and which are qualitative?
+```{r}
+head(Auto)
+```
+Here mpg,displacement,horsepower,weight,and acceleration are quantitative variables and origin,name are qualitative predictors.
+(b) What is the range of each quantitative predictor? You can answer this using the range() function.
+```{r}
+range(Auto$mpg)
+range(Auto$cylinders)
+range(Auto$displacement)
+range(Auto$horsepower)
+range(Auto$weight)
+range(Auto$acceleration)
+range(Auto$year)
+```
+Range for mpg, cylinders, displacement, horsepower, weight, acceleration, year are 37.6, 5, 387, 184, 3527, 16.8, 12
+(c)What is the mean and standard deviation of each quantitative predictor?
+```{r}
+colMeans(Auto[, 1:7])
+```
+
+```{r}
+apply(Auto[, 1:7], MARGIN = 2, FUN = "sd")
+```
+From the above observation the following are the mean and standard deviations(SD) for each quantitative predictor.
+->mpg: mean=23.45, SD=7.81
+->cylinders: mean=5.47, SD=1.71
+->displacement: mean=194.41, SD=104.64
+->hoprsepower: mean=104.47, SD=38.49
+->weight: mean=2977.58, SD=849.40
+->acceleration: mean=15.54, SD=2.76
+->year: mean=75.98, SD=3.68
+
+(d)Now remove the 10th through 85th observations. What is the range, mean, and standard deviation of each predictor in the subset of the data that remains?
+```{r}
+apply(Auto[-(10:85), 1:7], MARGIN = 2, FUN = "range")
+```
+
+```{r}
+apply(Auto[-(10:85), 1:7], MARGIN = 2, FUN = "mean")
+```
+
+```{r}
+apply(Auto[-(10:85), 1:7], MARGIN = 2, FUN = "sd")
+```
+
+After removing 10th and 85th rows mean range and SD are as follows:
+->mpg:range=35.6,mean=24.40,SD=7.87
+->cylinders:range=5,mean=5.37,SD=1.65
+->displacement:range=387,mean=187.24,SD=99.68
+->horsepower:range=184,mean=100.72,SD=35.71
+->weight:range=3348,mean=2935.97,SD=811.30
+->acceleration:range=16.3,mean=15.73,SD=2.69
+->year:mean=77.15,SD=3.11
+
+(e) Using the full data set, investigate the predictors graphically, using scatterplots or other tools of your choice. Create some plots highlighting the relationships among the predictors. Comment on your findings.
+```{r}
+par(mfrow = c(2, 2))
+plot(Auto$displacement, Auto$mpg, xlab = "Engine displacement (cubic inches)", ylab = "Miles per gallon")
+plot(Auto$horsepower, Auto$mpg, xlab = "Horsepower", ylab = "Miles per gallon")
+plot(Auto$weight, Auto$mpg, xlab = "Car weight (pounds)", ylab = "Miles per gallon")
+plot(Auto$year, Auto$mpg, xlab = "Model Year", ylab = "Miles per gallon")
+
+```
+The above scatter plots relates miles per gallon, engine displacement , horsepower, weight of car, model and year for the predictors. There is a relationship that increases engine displacement or horsepower or car weight which results in large fuel efficiency. Coming to the period 1970 to 1982 there is a weak relationship for fuel efficiency.
+```{r}
+par(mfrow = c(2, 2))
+plot(Auto$weight, Auto$acceleration, xlab = "Car weight (pounds)", ylab = "0 to 60mph time (seconds)")
+plot(Auto$cylinders, Auto$acceleration, xlab = "Number of engine cylinders", ylab = "0 to 60mph time (seconds)")
+plot(Auto$displacement, Auto$acceleration, xlab = "Engine displacement (cubic inches)", ylab = "0 to 60mph time (seconds)")
+plot(Auto$horsepower, Auto$acceleration, xlab = "Horsepower", ylab = "0 to 60mph time (seconds)")
+```
+In the above observation I have seen the relationship between the time taken in seconds for a car to accelerate 0 to 60 miles per hour time decreases when engine displacement and horse power increases and also number of engine cylinders increases 0 to 60 mph time tends to decrease.
+
+(f)Suppose that we wish to predict gas mileage (mpg) on the basis of the other variables. Do your plots suggest that any of the other variables might be useful in predicting mpg? Justify your answer.
+```{r}
+Auto$origin[Auto$origin == 1] = "American"
+Auto$origin[Auto$origin == 2] = "European"
+Auto$origin[Auto$origin == 3] = "Japanese"
+Auto$origin = as.factor(Auto$origin)
+```
+
+```{r}
+plot(Auto$origin, Auto$mpg, xlab = "Country of origin", ylab = "Miles per gallon")
+```
+From the above box plot, we can see that there is also a relation between a cars country and its origin and fuel efficiency and japanese cars are most efficient , followed by european and american cars.
+
+Q3)This exercise involves the Boston housing data set.
+(a) To begin, load in the Boston data set. The Boston data set is
+part of the ISLR2 library.
+```{r}
+library(ISLR2)
+```
+Now the data set is contained in the object Boston.
+```{r}
+Boston
+```
+Read about the data set:
+```{r}
+?Boston
+```
+How many rows are in this data set? How many columns? What do the rows and columns represent?
+```{r}
+head(Boston)
+```
+```{r}
+dim(Boston)
+```
+There are 506 rows and 13 columns in the Boston.Each row represents a particular tract of land within the city of Boston. The dataset has the following columns and there indications.
+crim:capita crime rate for the tract
+zn:Percent of residential land zoned for lots over 25000 square feet per town 
+tract:ID number of the tract of land
+etc;
+(b) Make some pairwise scatter plots of the predictors (columns) in this data set. Describe your findings.
+```{r}
+attach(Boston)
+pairs(Boston)
+```
+
+```{r}
+Boston.corr = cor(Boston)
+Boston.corr.crim = Boston.corr[-1,1]
+print(Boston.corr.crim[order(abs(Boston.corr.crim), decreasing = T)])
+```
+
+(c) Are any of the predictors associated with per capita crime rate? If so, explain the relationship.
+```{r}
+par(mfrow=c(2,2))
+# get the four most correlated variables
+aux = names(Boston.corr.crim[order(abs(Boston.corr.crim), decreasing = T)][1:4])
+for(i in aux)
+{
+  plot(get(i), crim, xlab=i)
+}
+```
+(d) Do any of the census tracts of Boston appear to have particularly high crime rates? Tax rates? Pupil-teacher ratios? Comment on the range of each predictor.
+```{r}
+summary(crim)
+```
+
+```{r}
+length(crim[crim>30])
+```
+
+```{r}
+hist(tax)
+```
+
+```{r}
+length(tax[tax>500])
+```
+
+```{r}
+hist(ptratio)
+```
+
+```{r}
+length(ptratio[ptratio<14])
+```
+
+```{r}
+table(chas)
+```
+
+```{r}
+median(ptratio)
+```
+
+```{r}
+subs.lw = which(medv<median(medv))
+print(subs.lw)
+```
+
+```{r}
+Boston.corr.subs.lw = cor(Boston[subs.lw, ])
+corr.compare = data.frame('lower'=Boston.corr.subs.lw[, "medv"], 'all'=Boston.corr[, "medv"])
+corr.compare$diff = corr.compare$lower - corr.compare$all
+```
+
+```{r}
+hist(corr.compare$diff, xlab="Correlation Differences")
+```
+
+```{r}
+hist(abs(corr.compare$diff), xlab="Correlation Differences")
+```
+
+```{r}
+main.diffs = head(corr.compare[order(abs(corr.compare$diff), decreasing = T), ], 5)
+
+print(main.diffs)
+```
+
+```{r}
+print(rownames(main.diffs))
+```
+
+```{r}
+hist(rm, main="Distribution of Rooms by Dwelling", xlab="Rooms")
+```
+```{r}
+length(rm[rm>7])
+```
+
+```{r}
+length(rm[rm>8])
+```
+
+(e) How many of the census tracts in this data set bound the Charles river?
+```{r}
+sum(Boston$CHAS)
+```
+(f) What is the median pupil-teacher ratio among the towns in this data set?
+```{r}
+summary(Boston$PTRATIO)
+```
+(g) Which census tract of Boston has lowest median value of owneroccupied homes? What are the values of the other predictors for that census tract, and how do those values compare to the overall ranges for those predictors? Comment on your findings.
+```{r}
+Boston[rm>8 & medv<30, ]
+```
+(h) In this data set, how many of the census tracts average more than seven rooms per dwelling? More than eight rooms per dwelling? Comment on the census tracts that average more than eight rooms per dwelling
+```{r}
+frm =as.factor(as.character(lapply(rm, function(x) ifelse(x>8, "]8, +Inf[", ifelse(x>7,"]7,8]","[0,7]")))))
+plot(frm, medv, varwidth=T, xlab="Number of Rooms", 
+     ylab="Median Values by $1000s",
+     title="Median Value of Owner-Occupied Homes")
+
+```
+
+Q4) This question involves the use of simple linear regression on the Auto data set.
+(a) Use the lm() function to perform a simple linear regression with
+mpg as the response and horsepower as the predictor. Use the
+summary() function to print the results. Comment on the output.
+For example:
+i. Is there a relationship between the predictor and the response?
+ii. How strong is the relationship between the predictor and
+the response?
+iii. Is the relationship between the predictor and the response
+positive or negative?
+iv. What is the predicted mpg associated with a horsepower of
+98? What are the associated 95 % confidence and prediction
+intervals?
+```{r}
+library(ISLR)
+library(MASS)
+data("Auto")
+head(Auto)
+```
+
+```{r}
+auto.lin.fit = lm(mpg ~ horsepower, data = Auto)
+summary(auto.lin.fit)
+```
+
+```{r}
+predict(auto.lin.fit, data.frame(horsepower = 98), interval = "confidence")
+```
+
+```{r}
+predict(auto.lin.fit, data.frame(horsepower = 98), interval = "prediction")
+```
+
+(b) Plot the response and the predictor. Use the abline() function
+to display the least squares regression line.
+```{r}
+plot(Auto$horsepower, Auto$mpg, xlab = "Horsepower", ylab = "Miles per gallon")
+abline(auto.lin.fit, lwd = 3, col = "red")
+```
+
+(c) Use the plot() function to produce diagnostic plots of the least
+squares regression fit. Comment on any problems you see with
+the fit.
+```{r}
+par(mfrow = c(2, 2))
+plot(auto.lin.fit)
+```
+
+Q5). This question involves the use of multiple linear regression on the
+Auto data set.
+```{r}
+library(ISLR)
+library(MASS)
+data("Auto")
+head(Auto)
+```
+
+(a) Produce a scatterplot matrix which includes all of the variables
+in the data set.
+```{r}
+pairs(~mpg + cylinders + displacement + horsepower + weight + acceleration + year, Auto)
+```
+
+(b) Compute the matrix of correlations between the variables using
+the function cor(). You will need to exclude the name variable, cor() which is qualitative.
+```{r}
+cor(Auto[,-c(8, 9)])
+```
+
+(c) Use the lm() function to perform a multiple linear regression
+with mpg as the response and all other variables except name as
+the predictors. Use the summary() function to print the results.
+Comment on the output. For instance:
+i. Is there a relationship between the predictors and the response?
+ii. Which predictors appear to have a statistically significant
+relationship to the response?
+iii. What does the coefficient for the year variable suggest?
+```{r}
+mpg.fit = lm(mpg ~ . - name, data = Auto)
+summary(mpg.fit)
+```
+
+```{r}
+vif(lm(mpg ~ . - origin - name, data = Auto))
+```
+
+(d) Use the plot() function to produce diagnostic plots of the linear
+regression fit. Comment on any problems you see with the fit.
+Do the residual plots suggest any unusually large outliers? Does
+the leverage plot identify any observations with unusually high
+leverage?
+```{r}
+par(mfrow = c(2, 2))
+plot(mpg.fit)
+```
+
+(e) Use the * and : symbols to fit linear regression models with
+interaction effects. Do any interactions appear to be statistically
+significant?
+```{r}
+mpg.fit.all.interactions = lm(mpg ~ (. - name)^2, data = Auto)
+summary(mpg.fit.all.interactions)
+```
+
+```{r}
+mpg.fit.reduced.interactions = update(mpg.fit.all.interactions, ~ . - horsepower:origin)
+summary(mpg.fit.reduced.interactions)
+```
+
+```{r}
+mpg.fit.reduced.interactions = update(mpg.fit.reduced.interactions, ~ . - displacement:horsepower)
+summary(mpg.fit.reduced.interactions)
+```
+
+```{r}
+mpg.fit.reduced.interactions = update(mpg.fit.reduced.interactions, ~ . - weight:acceleration)
+summary(mpg.fit.reduced.interactions)
+```
+
+```{r}
+mpg.fit.reduced.interactions = update(mpg.fit.reduced.interactions, ~ . - weight:year)
+summary(mpg.fit.reduced.interactions)
+```
+
+```{r}
+mpg.fit.reduced.interactions = update(mpg.fit.reduced.interactions, ~ . - cylinders:horsepower)
+summary(mpg.fit.reduced.interactions)
+```
+
+```{r}
+mpg.fit.reduced.interactions = update(mpg.fit.reduced.interactions, ~ . - cylinders:origin)
+summary(mpg.fit.reduced.interactions)
+```
+
+(f) Try a few different transformations of the variables, such as
+log(X), √X, X2. Comment on your findings.
+```{r}
+par(mfrow = c(2, 2))
+plot(Auto$displacement, Auto$mpg)
+plot(Auto$horsepower, Auto$mpg)
+plot(Auto$weight, Auto$mpg)
+plot(Auto$acceleration, Auto$mpg)
+```
+
+```{r}
+summary(lm(mpg ~ acceleration, data = Auto))
+```
+
+Q6). This question should be answered using the Carseats data set.
+```{r}
+library(ISLR)
+head(Carseats)
+```
+
+(a) Fit a multiple regression model to predict Sales using Price,
+Urban, and US.
+```{r}
+carseats.fit.1 = lm(Sales ~ Price + Urban + US, data = Carseats)
+summary(carseats.fit.1)
+```
+
+```{r}
+contrasts(Carseats$Urban)
+```
+
+```{r}
+contrasts(Carseats$US)
+```
+
+(b) Provide an interpretation of each coefficient in the model. Be
+careful—some of the variables in the model are qualitative!
+The coefficient of -0.054459 for Price means that, for a given location (i.e. fixed values of Urban and US), increasing the price of a car seat by $1 results in a decrease of sales by approximately 54.46 units, on average, in the model.
+(c) Write out the model in equation form, being careful to handle
+the qualitative variables properly.
+The model has the following equation.
+
+Y=13.043−0.054X1−0.022X2+1.200X3
+(d) For which of the predictors can you reject the null hypothesis
+H0 : βj = 0?
+The p-values for the intercept, Price, and USYes are all essentially zero, which provides strong evidence to reject the null hypothesis  H0:βj=0  for those predictors.
+(e) On the basis of your response to the previous question, fit a
+smaller model that only uses the predictors for which there is
+evidence of association with the outcome.
+```{r}
+carseats.fit.2 = lm(Sales ~ Price + US, data = Carseats)
+summary(carseats.fit.2)
+```
+(f) How well do the models in (a) and (e) fit the data?
+```{r}
+par(mfrow = c(2, 2))
+plot(carseats.fit.1)
+```
+
+```{r}
+par(mfrow = c(2, 2))
+plot(carseats.fit.2)
+```
+(g) Using the model from (e), obtain 95 % confidence intervals for
+the coefficient(s).
+```{r}
+confint(carseats.fit.2)
+```
+(h) Is there evidence of outliers or high leverage observations in the
+model from (e)?
+When we look at the residuals vs. leverage plot for the model from Part 5 that I generated in Part 6, we see that there are a number of observations with standardized residuals close to 3 in absolute value. Those observations are possible outliers. We can also see in the same plot that there are number of high leverage points with leverage values greatly exceeding the average leverage of  3/400=0.0075 , though those high leverage observations are not likely outliers, as they have studentized residual values with absolute value less than 2.
+
